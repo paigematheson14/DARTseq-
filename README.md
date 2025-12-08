@@ -58,6 +58,16 @@ Overrepresented sequences: All start with TGCAG…, matching restriction‑site 
 
 verdict: pretty good 
 
+# 3. I'll do some light trimming to remove adapters and low-quality bases 
+
+this avoids downstream mapping artifacts and false SNPs
+
+```
+fastp -i sample.fastq.gz -o sample.trimmed.fastq.gz \
+      --detect_adapter_for_pe \
+      --cut_tail --cut_mean_quality 20 \
+      --length_required 50 \
+```
 
 
 
