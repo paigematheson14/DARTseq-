@@ -69,7 +69,11 @@ fastp -i sample.fastq.gz -o sample.trimmed.fastq.gz \
       --length_required 50 \
 ```
 
+# 4. Then re-run fastqc and multiqc to see if it improved
 
+It did :) the duplication was slightly less and the median bp length improved.
+
+# 5. 
 
 
 
