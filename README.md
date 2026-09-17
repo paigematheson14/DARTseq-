@@ -63,10 +63,13 @@ verdict: pretty good
 this avoids downstream mapping artifacts and false SNPs
 
 ```
-fastp -i sample.fastq.gz -o sample.trimmed.fastq.gz \
-      --detect_adapter_for_pe \
-      --cut_tail --cut_mean_quality 20 \
-      --length_required 50 \
+        fastp \
+            -i "$file" \
+            -o "../02_filter/${i}/${filename}.trimmed.fastq.gz" \
+            --cut_tail \
+            --cut_mean_quality 20 \
+            --length_required 50
+
 ```
 
 # 4. Then re-run fastqc and multiqc to see if it improved
@@ -149,36 +152,4 @@ cd ${i}
 
 populations -P ./ -M ${i}_pops.txt --vcf
 
-cd ../;
-done
-```
 
-# quadrimaculata - the devil that you are 
-This species likes to make my life hard. because the reference genome I have is bad, highly contiguous, i will do variant calling denovo, still using stacks. First I have to trim the reads to be the same length which is a requirement for ustacks algorithims. 
-
-(RAD/TAG sequences should all be the same length after restriction digest and sequencing. Sometimes reads are shorter due to sequencing errors or incomplete reads, adapter contamination, trimming (e.g., quality trimming). Stacks detects that reads aren’t uniform and stops to avoid misalignments.
-
-I used cutadapt to trim sequences, and i trimmed to 90bp because that was the peak for all of the samples (i.e., most reads had 90bp)
-
-```
-for f in *.trimmed.fixed.fastq.gz; do     echo "Trimming $f to 90 bp...";     cutadapt -l 90 -o "${f%.fastq.gz}.trimmed90.fastq.gz" "$f" > "${f%.fastq.gz}.cutadapt90.log"; done
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  stygia:
-  
