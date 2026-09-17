@@ -39,47 +39,31 @@ i made a bash file like this for each of my species. the samples list is just a 
 
 ```
 #!/usr/bin/env bash
+set -euo pipefail
 
-# --- Config ---
-GENOME_FA="/nesi/project/uow03920/09_dart/05_reference/01_hilli_filtered_contaminants.fasta"
-BWA_PREFIX="/nesi/project/uow03920/09_dart/05_reference/bwa/01_hilli"
-SAMPLES_LIST="01_ids.txt"       # one sample per line
-TRIM_DIR="/nesi/project/uow03920/09_dart/03_trimming/01_hilli"
-OUT_DIR="/nesi/project/uow03920/09_dart/06_bwa/mem/01_hilli"
+mkdir -p "$OUT_DIR"
 
-# --- Index reference if missing ---
-if [[ ! -f "${BWA_PREFIX}.bwt" ]]; then
-    echo "Indexing genome..."
-    bwa index -p "${BWA_PREFIX}" "${GENOME_FA}" &> "${OUT_DIR}/bwa_index.log"
-fi
-
-# --- Loop over samples ---
 while read -r sample; do
+
     [[ -z "$sample" ]] && continue
 
-    echo "Working with ${sample}"
-
-    FASTQ="${TRIM_DIR}/${sample}.FASTQ.gz.trimmed.fastq.gz"
+    FASTQ="${TRIM_DIR}/${sample}.trimmed.fastq.gz"
     BAM="${OUT_DIR}/${sample}.bam"
 
-    if [[ ! -f "$FASTQ" ]]; then
-        echo "Warning: FASTQ not found for ${sample}, skipping."
+    [[ ! -f "$FASTQ" ]] && {
+        echo "Missing $FASTQ"
         continue
-    fi
+    }
 
-    # Read group (escaped tabs)
     RG="@RG\tID:${sample}\tSM:${sample}\tPL:ILLUMINA\tLB:DArTseq"
 
-    # Align and sort
     bwa mem -t 10 -M -R "$RG" "$BWA_PREFIX" "$FASTQ" \
-        | samtools view -bS - \
         | samtools sort -@ 10 -o "$BAM"
 
-    # Index BAM
     samtools index "$BAM"
 
-    # Optional: mapping stats
-    samtools flagstat "$BAM"
+    samtools flagstat "$BAM" \
+        > "${OUT_DIR}/${sample}.flagstat.txt"
 
 done < "$SAMPLES_LIST"
 ```
