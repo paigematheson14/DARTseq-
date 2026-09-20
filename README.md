@@ -68,6 +68,18 @@ while read -r sample; do
 done < "$SAMPLES_LIST"
 ```
 
+# I checked mapping rate for all samples using this:
+
+```
+for bam in *.bam; do
+    rate=$(samtools flagstat "$bam" | grep "mapped (" | head -1 | sed 's/.*mapped (\([0-9.]*\)%.*/\1/')
+    echo "$bam $rate"
+done
+```
+
+C. quadrimaculata had extremely low mapping rate. I think I'll do de novo calls for C. quad. 
+
+
 # variant calling
 
 I used populations from Stacks to variant call for stygia, hilli, and vicina. the --vcf flag makes the output a vcf file. very easy :)
